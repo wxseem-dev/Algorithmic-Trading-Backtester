@@ -8,6 +8,9 @@ It downloads historical price data using **yfinance**, runs a **moving average c
 - Strategy vs Buy-and-Hold equity curves
 - Summary statistics (total return, max drawdown, number of trades, win rate, average trade return)
 
+<img width="1372" height="907" alt="image" src="https://github.com/user-attachments/assets/c429abd8-e909-40fe-ba00-df0ca9f14a90" />
+
+
 ## 1. Installation
 
 From the project folder (where `backtester.py` is located), create a virtual environment (optional but recommended) and install dependencies:
