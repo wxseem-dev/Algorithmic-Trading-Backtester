@@ -5,6 +5,7 @@ BaseStrategy is abstract; concrete strategies add signals to the data.
 from abc import ABC, abstractmethod
 
 import pandas as pd
+import numpy as np
 
 
 class BaseStrategy(ABC):
@@ -33,14 +34,22 @@ class MACrossoverStrategy(BaseStrategy):
         self.long_ma = long_ma
 
     def generate_signals(self, data: pd.DataFrame) -> pd.DataFrame:
+        # Data validation
+        min_required = self.long_ma + 1
+        if len(data) < min_required:
+            raise ValueError(f"Not enough data points ({len(data)} for Long MA ({self.long_ma}).")
+
         df = data.copy()
         df["Close"] = df["Adj Close"] if "Adj Close" in df.columns else df["Close"]
 
         df["Short_MA"] = df["Close"].rolling(window=self.short_ma).mean()
         df["Long_MA"] = df["Close"].rolling(window=self.long_ma).mean()
 
-        df["Signal"] = 0
-        df.loc[df["Short_MA"] > df["Long_MA"], "Signal"] = 1
+        # Calculate daily volatility
+        df["Vol"] = df["Close"].pct_change().rolling(20).std()
+        target_vol = 0.01
+
+        df["Signal"] = np.where(df["Short_MA"] > df["Long_MA"], 1, 0)
 
         df["Position_Change"] = df["Signal"].diff().fillna(0)
         return df

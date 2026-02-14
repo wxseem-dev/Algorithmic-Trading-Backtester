@@ -56,7 +56,7 @@ class BacktesterApp(tk.Tk):
         ttk.Label(control_frame, text="Ticker:").grid(row=0, column=0, sticky="w", padx=5, pady=2)
         self.ticker_var = tk.StringVar(value="AAPL")
         ticker_choices = [
-            "AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "META", "NVDA", "SPY", "QQQ", "KO", "PEP"
+            "AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "META", "NVDA", "SPY", "QQQ", "KO", "PEP", "TQQQ", "SQQQ", "SPXL", "SPXS", "SOXL", "SOXS", "UVXY", "DOGE-USD", "FLOKI-USD", "SHIB-USD", "GME", "AMC", "BBBYQ", "PLTR", "MARA", "RIOT", "INTC"
         ]
         self.ticker_box = ttk.Combobox(
             control_frame, textvariable=self.ticker_var, values=ticker_choices, width=10
@@ -247,9 +247,18 @@ class BacktesterApp(tk.Tk):
         num_trades = results["num_trades"]
         win_rate = results["win_rate"]
         avg_trade_return = results["avg_trade_return"]
+        total_costs = results.get("total_costs", 0)
+        sharpe_ratio = results.get("sharpe_ratio", 0.0)
+        sortino_ratio = results.get("sortino_ratio", 0.0)
+        profit_factor = results.get("profit_factor", np.nan)
+        avg_win = results.get("avg_win", 0.0)
+        avg_loss = results.get("avg_loss", 0.0)
 
         def pct(x):
             return f"{x*100:.2f}%" if np.isfinite(x) else "N/A"
+
+        def fmt_pf(x):
+            return f"{x:.2f}" if np.isfinite(x) else "N/A"
 
         ma_line = f"Short MA: {short_ma} days, Long MA: {long_ma} days" if strategy_name == "MA Crossover" else "Strategy: Mean Reversion (skeleton)"
         lines = [
@@ -261,9 +270,15 @@ class BacktesterApp(tk.Tk):
             f"Total Return (Buy & Hold): {pct(total_return_buyhold)}",
             f"Max Drawdown (Strategy): {pct(max_drawdown)}",
             "",
+            f"Sharpe Ratio (ann.): {sharpe_ratio:.2f}",
+            f"Sortino Ratio (ann.): {sortino_ratio:.2f}",
+            "",
             f"Number of Trades: {num_trades}",
             f"Winning %: {pct(win_rate)}",
             f"Average Trade Return: {pct(avg_trade_return)}",
+            f"Avg Win: {pct(avg_win)}  |  Avg Loss: {pct(avg_loss)}",
+            f"Profit Factor: {fmt_pf(profit_factor)}",
+            f"Total Transaction Costs: {pct(total_costs)}",
         ]
 
         self.metrics_text.config(state="normal")
